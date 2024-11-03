@@ -14,8 +14,8 @@ from db.controllers.UsersController import UsersController
 from db.controllers.SubscribesController import SubscribesController
 
 class PostState(UserState):
-    def __init__(self, user_id: str, user_chat_id: str, bot: AsyncTeleBot):
-        super().__init__(user_id, user_chat_id, bot)
+    def __init__(self, user_id: str, user_chat_id: str, bot: AsyncTeleBot, user_name, message):
+        super().__init__(user_id, user_chat_id, bot, user_name, message)
         self.user_controller = UsersController()
         self.subscribe_controller = SubscribesController()
         self.logger = Logger(filename="PostState")
@@ -79,7 +79,7 @@ class PostState(UserState):
     async def next_btn_clk(self, data_btn: str):
         if data_btn == "/cancel":
             if self.current_name == None:
-                return Response(is_end=True, redirect="/menu")
+                return Response(is_end=True, redirect="/intro")
             else:
                 return Response(is_end=True, redirect="/postlist")
         elif data_btn == "/next":

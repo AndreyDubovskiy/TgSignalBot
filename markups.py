@@ -77,7 +77,7 @@ def generate_semi_menu_subscribe():
 
 def generate_markup_menu():
     markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(types.InlineKeyboardButton(text="Мої підписки", callback_data="/subscribes_list"))
+    markup.add(types.InlineKeyboardButton(text="💰 МОЇ ПІДПИСКИ 💰", callback_data="/subscribes_list"))
     markup.add(types.InlineKeyboardButton(text="Список постів", callback_data="/postlist"))
     markup.add(types.InlineKeyboardButton(text="Змінити пароль адміна", callback_data="/passwordadmin"))
 
@@ -86,7 +86,7 @@ def generate_markup_menu():
 def generate_markup_menu_user():
     markup = types.InlineKeyboardMarkup(row_width=2)
 
-    markup.add(types.InlineKeyboardButton(text="Мої підписки", callback_data="/subscribes_list"))
+    markup.add(types.InlineKeyboardButton(text="💰 МОЇ ПІДПИСКИ 💰", callback_data="/subscribes_list"))
 
     return markup
 

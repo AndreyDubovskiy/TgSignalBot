@@ -52,6 +52,8 @@ class SybscribeState(UserState):
         if data_btn == "/cancel":
             if self.current_subscribe is not None:
                 return Response(redirect="/subscribes_list")
+            if self.user_id in config_controller.list_is_loggin_admins:
+                return Response(redirect="/intro")
             return Response(redirect="/menu")
         elif data_btn == "/next":
             self.page += self.PAGE_MAX

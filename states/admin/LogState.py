@@ -9,7 +9,7 @@ class LogState(UserState):
 
     async def next_msg(self, message: str):
         if config_controller.log(self.user_id, message):
-            return Response(text="Пароль прийнято!", is_end=True, redirect="/menu")
+            return Response(text="Пароль прийнято!", is_end=True, redirect="/intro")
         else:
             return Response(text="Невірний пароль!\nВведіть ще раз:", buttons=markups.generate_cancel())
 

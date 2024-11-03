@@ -17,7 +17,7 @@ class BuilderState:
     def create_state(self, data_txt: str, user_id: str, user_chat_id: str, bot: AsyncTeleBot, user_name: str = None, message: types.Message = None) -> UserState:
         defoult = ErrorState
         clssses = {
-            "/adminmenu": MenuState,
+            "/intro": MenuState,
             "/menu": MenuUserState,
             "/passwordadmin": ChangeAdminState,
             "/log": LogState,
