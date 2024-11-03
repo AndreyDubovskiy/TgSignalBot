@@ -1,0 +1,6 @@
+pyTelegramBotAPI
+aiohttp
+SQLAlchemy
+sqlalchemy[asyncio]
+aiosqlite
+pandas
