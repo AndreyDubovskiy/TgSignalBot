@@ -45,7 +45,7 @@ class ConfigsController(Controller):
                 tmp = ConfigModel(name=name, value=value, group=group, binary_data=binary_data)
                 session.add(tmp)
                 await session.commit()
-                await session.refresh(tmp)
+                #await session.refresh(tmp)
         return tmp
 
     async def delete(self, id: int) -> Optional[ConfigModel]:

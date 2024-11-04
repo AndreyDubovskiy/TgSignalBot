@@ -16,7 +16,7 @@ class SenderSignal:
         self.exchange = Exchange()
         self.logger = Logger(filename="SenderSignal",
                              write_in_file=True,
-                             add_time=False,
+                             add_time=True,
                              write_in_console=False)
 
     async def tick(self):
@@ -83,8 +83,9 @@ class SenderSignal:
                             self.logger.log(f"SHORT {subscribe.timeframe}",
                                             short)
 
-            except:
-                pass
+            except Exception as ex:
+                self.logger.log(f"ERROR",
+                                ex)
         end_time_tick = time.time()
         time_tick = end_time_tick - time_start_tick
         self.logger.log("TIME FOR TICK",
