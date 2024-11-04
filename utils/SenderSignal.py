@@ -51,8 +51,8 @@ class SenderSignal:
                     longs, shorts = self.exchange.analyze_and_plot(subscribe.symbol, subscribe.timeframe)
                     long = longs.iloc[-1]
                     short = shorts.iloc[-1]
-                    long_time = long['Close time']
-                    short_time = short['Close time']
+                    long_time = datetime.fromtimestamp(long['Close time'] / 1000)
+                    short_time = datetime.fromtimestamp(short['Close time'] / 1000)
                     if long_time > short_time:
                         if long_time > subscribe.updated_at:
                             sum_tmp = (await self.subscribe_controller.get_by(id=subscribe.id))[0]
@@ -64,7 +64,7 @@ class SenderSignal:
                                                                     f"Пара: {subscribe.symbol}\n"
                                                                     f"Таймфрейм: {subscribe.timeframe}\n"
                                                                     f"Ціна: {long['Close']}\n"
-                                                                    f"Час: {(long['Close time']+timedelta(hours=2))}")
+                                                                    f"Час: {(long_time+timedelta(hours=2))}")
                             self.logger.log(f"LONG {subscribe.timeframe}",
                                             long)
 
@@ -79,7 +79,7 @@ class SenderSignal:
                                                                     f"Пара: {subscribe.symbol}\n"
                                                                     f"Таймфрейм: {subscribe.timeframe}\n"
                                                                     f"Ціна: {short['Close']}\n"
-                                                                    f"Час: {(short['Close time']+timedelta(hours=2))}")
+                                                                    f"Час: {(short_time+timedelta(hours=2))}")
                             self.logger.log(f"SHORT {subscribe.timeframe}",
                                             short)
 
@@ -89,5 +89,5 @@ class SenderSignal:
         end_time_tick = time.time()
         time_tick = end_time_tick - time_start_tick
         self.logger.log("TIME FOR TICK",
-                        time_tick)
+                        time_tick, " COUNT ", len(subscribes_list))
         self.logger.save()
