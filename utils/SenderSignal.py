@@ -21,6 +21,7 @@ class SenderSignal:
         #                     write_in_console=False)
 
     async def tick(self):
+        print("TICK START")
         time_start_tick = time.time()
         balancer = Balancer()
         subscribes_list = await self.subscribe_controller.get_all()

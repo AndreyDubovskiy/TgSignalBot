@@ -160,7 +160,6 @@ async def handle_message(message: types.Message):
         await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
     else:
         state: UserState = state_list[id_list]
-        print("msg", message)
         state.message_obj = message
         res: Response = await state.next_msg(text)
         await chek_response(user_chat_id, user_id, id_list, res, user_name, message)
