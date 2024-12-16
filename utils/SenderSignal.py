@@ -21,9 +21,9 @@ class SenderSignal:
         #                     write_in_console=False)
 
     async def tick(self):
-        print("TICK START")
         time_start_tick = time.time()
         balancer = Balancer()
+        await balancer.all_delete()
         subscribes_list = await self.subscribe_controller.get_all()
         current_datatime = self.exchange.get_server_time()
         for subscribe in subscribes_list:

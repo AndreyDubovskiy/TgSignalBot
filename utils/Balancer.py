@@ -3,12 +3,10 @@ from db.models.BalanceModel import BalanceModel
 
 from utils.Exchange import Exchange
 from datetime import datetime
-import asyncio
 
 class Balancer:
     def __init__(self):
         self.balances_controller = BalancesController()
-        asyncio.run(self.all_delete())
         self.exchange = Exchange()
 
     async def get(self, name: str, timeframe: str) -> BalanceModel:
