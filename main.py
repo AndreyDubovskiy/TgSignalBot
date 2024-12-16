@@ -170,10 +170,10 @@ tasks.bot = bot
 
 import asyncio
 
-sender_signal = SenderSignal(bot=bot)
+
 
 async def sender_time():
-    global sender_signal
+    sender_signal = SenderSignal(bot=bot)
     while True:
         print("TRY tick")
         await sender_signal.tick()
