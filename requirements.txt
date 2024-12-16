@@ -4,3 +4,4 @@ SQLAlchemy
 sqlalchemy[asyncio]
 aiosqlite
 pandas
+ta
