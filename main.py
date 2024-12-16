@@ -175,6 +175,7 @@ sender_signal = SenderSignal(bot=bot)
 async def sender_time():
     global sender_signal
     while True:
+        print("TRY tick")
         await sender_signal.tick()
         await asyncio.sleep(60)
 
