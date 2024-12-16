@@ -79,6 +79,14 @@ def generate_markup_menu():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(types.InlineKeyboardButton(text="💰 МОЇ ПІДПИСКИ 💰", callback_data="/subscribes_list"))
     markup.add(types.InlineKeyboardButton(text="Список постів", callback_data="/postlist"))
+    if config_controller.IS_WHITELIST:
+        markup.add(types.InlineKeyboardButton(text="Білий список: ВКЛ", callback_data="/whitelist"))
+        markup.add(types.InlineKeyboardButton(text="Додати в білий список", callback_data="/add_whitelist"))
+        markup.add(types.InlineKeyboardButton(text="Видалити з білого списку", callback_data="/delete_whitelist"))
+    else:
+        markup.add(types.InlineKeyboardButton(text="Білий список: ВИКЛ", callback_data="/whitelist"))
+
+
     markup.add(types.InlineKeyboardButton(text="Змінити пароль адміна", callback_data="/passwordadmin"))
 
     return markup

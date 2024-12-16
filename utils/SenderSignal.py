@@ -5,6 +5,7 @@ from db.controllers.SubscribesController import SubscribesController
 from utils.Exchange import Exchange
 from datetime import datetime, timedelta
 from logger.MyLogger import Logger
+from utils.Balancer import Balancer
 import time
 
 
@@ -14,13 +15,14 @@ class SenderSignal:
         self.user_controller = UsersController()
         self.subscribe_controller = SubscribesController()
         self.exchange = Exchange()
-        self.logger = Logger(filename="SenderSignal",
-                             write_in_file=True,
-                             add_time=True,
-                             write_in_console=False)
+        #self.logger = Logger(filename="SenderSignal",
+        #                     write_in_file=True,
+        #                     add_time=True,
+        #                     write_in_console=False)
 
     async def tick(self):
         time_start_tick = time.time()
+        balancer = Balancer()
         subscribes_list = await self.subscribe_controller.get_all()
         current_datatime = self.exchange.get_server_time()
         for subscribe in subscribes_list:
@@ -48,13 +50,15 @@ class SenderSignal:
                     delta_time = timedelta(days=1)
 
                 if (current_datatime - subscribe.updated_at) >= delta_time:
-                    longs, shorts = self.exchange.analyze_and_plot(subscribe.symbol, subscribe.timeframe)
-                    long = longs.iloc[-1]
-                    short = shorts.iloc[-1]
-                    long_time = datetime.fromtimestamp(long['Close time'] / 1000)
-                    short_time = datetime.fromtimestamp(short['Close time'] / 1000)
-                    if long_time > short_time:
-                        if long_time > subscribe.updated_at:
+                    #longs, shorts = self.exchange.analyze_and_plot(subscribe.symbol, subscribe.timeframe)
+                    signal_obj = await balancer.get(name=subscribe.symbol, timeframe=subscribe.timeframe)
+
+                    # long = longs.iloc[-1]
+                    # short = shorts.iloc[-1]
+                    # long_time = datetime.fromtimestamp(long['Close time'] / 1000)
+                    # short_time = datetime.fromtimestamp(short['Close time'] / 1000)
+                    if signal_obj.signal_type == 'buy':
+                        if signal_obj.updated_at > subscribe.updated_at:
                             sum_tmp = (await self.subscribe_controller.get_by(id=subscribe.id))[0]
                             sum_tmp.updated_at = current_datatime
                             await self.subscribe_controller.save(sum_tmp)
@@ -63,13 +67,13 @@ class SenderSignal:
                             await self.bot.send_message(user.tg_id, f"🟢 LONG\n"
                                                                     f"Пара: {subscribe.symbol}\n"
                                                                     f"Таймфрейм: {subscribe.timeframe}\n"
-                                                                    f"Ціна: {long['Close']}\n"
-                                                                    f"Час: {(long_time+timedelta(hours=2))}")
-                            self.logger.log(f"LONG {subscribe.timeframe}",
-                                            long)
+                                                                    f"Ціна: {signal_obj.signal_price}\n"
+                                                                    f"Час: {(signal_obj.updated_at+timedelta(hours=2))}")
+                            #self.logger.log(f"LONG {subscribe.timeframe}",
+                            #                long)
 
                     else:
-                        if short_time > subscribe.updated_at:
+                        if signal_obj.updated_at > subscribe.updated_at:
                             sum_tmp = (await self.subscribe_controller.get_by(id=subscribe.id))[0]
                             sum_tmp.updated_at = current_datatime
                             await self.subscribe_controller.save(sum_tmp)
@@ -78,16 +82,18 @@ class SenderSignal:
                             await self.bot.send_message(user.tg_id, f"🔴 SHORT\n"
                                                                     f"Пара: {subscribe.symbol}\n"
                                                                     f"Таймфрейм: {subscribe.timeframe}\n"
-                                                                    f"Ціна: {short['Close']}\n"
-                                                                    f"Час: {(short_time+timedelta(hours=2))}")
-                            self.logger.log(f"SHORT {subscribe.timeframe}",
-                                            short)
+                                                                    f"Ціна: {signal_obj.signal_price}\n"
+                                                                    f"Час: {(signal_obj.updated_at+timedelta(hours=2))}")
+                            #self.logger.log(f"SHORT {subscribe.timeframe}",
+                            #                short)
 
             except Exception as ex:
-                self.logger.log(f"ERROR",
-                                ex)
+                print(ex)
+                #self.logger.log(f"ERROR",
+                 #               ex)
         end_time_tick = time.time()
         time_tick = end_time_tick - time_start_tick
-        self.logger.log("TIME FOR TICK",
-                        time_tick, " COUNT ", len(subscribes_list))
-        self.logger.save()
+        print("TIME FOR TICK", time_tick, " COUNT ", len(subscribes_list))
+        #self.logger.log("TIME FOR TICK",
+        #                time_tick, " COUNT ", len(subscribes_list))
+        #self.logger.save()

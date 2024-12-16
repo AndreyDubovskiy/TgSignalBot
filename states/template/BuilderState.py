@@ -9,6 +9,10 @@ from states.user.ErrorState import ErrorState
 from states.user.StartState import StartState
 from states.user.MenuUserState import MenuUserState
 from states.admin.PostState import PostState
+from states.admin.SwitchWhitelistState import SwitchWhitelistState
+from states.admin.AddUserState import AddUserState
+from states.admin.DelUserState import DelUserState
+
 
 class BuilderState:
     def __init__(self, bot: AsyncTeleBot):
@@ -23,7 +27,10 @@ class BuilderState:
             "/log": LogState,
             "/start": StartState,
             "/subscribes_list": SybscribeState,
-            "/postlist": PostState
+            "/postlist": PostState,
+            "/whitelist": SwitchWhitelistState,
+            "/add_whitelist": AddUserState,
+            "/delete_whitelist": DelUserState
         }
         if data_txt in clssses:
             return clssses[data_txt](user_id, user_chat_id, bot, user_name, message)

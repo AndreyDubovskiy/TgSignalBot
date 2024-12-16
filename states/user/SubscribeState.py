@@ -5,24 +5,23 @@ from db.controllers.SubscribesController import SubscribesController
 from db.controllers.UsersController import UsersController
 import config_controller
 from utils.Exchange import Exchange
+import utils.whitelist as whitelist
 
 class SybscribeState(UserState):
     async def start_msg(self):
-        print("START", self.user_id)
         self.subscribe_controller = SubscribesController()
         self.user_controller = UsersController()
         self.exchange = Exchange()
+        self.is_whitelist = await whitelist.is_whitelist(self.user_name ,self.user_id)
+        if not self.is_whitelist:
+            return Response(text="У вас немає дозволу користуватися ботом!", is_end=True)
         self.user_bd = await self.user_controller.get_by(tg_id=self.user_id)
-        print("USER BD", self.user_bd)
         if len(self.user_bd) == 0:
-            await self.user_controller.create(tg_id=self.user_id)
-            print("NEW USER", self.user_id)
+            await self.user_controller.create(tg_id=self.user_id, tg_name=self.user_name)
             self.user_bd = (await self.user_controller.get_by(tg_id=self.user_id))[0]
         else:
             self.user_bd = self.user_bd[0]
-        print("USER", self.user_bd)
         self.subscribe_list = await self.subscribe_controller.get_by(user_id=self.user_bd.id)
-        print("LIST", self.subscribe_list)
 
         self.PAGE_MAX = 8
         self.page = 0

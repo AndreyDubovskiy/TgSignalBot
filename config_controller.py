@@ -3,6 +3,8 @@ import os
 from db.controllers.ConfigsController import ConfigsController
 controller = ConfigsController()
 PASSWORD_ADMIN = "admin"
+IS_WHITELIST = False
+
 
 LIST_POSTS = {}
 # {"name":{"text": str,
@@ -23,14 +25,19 @@ async def preload_config():
 async def write_ini():
     config = {}
     config["PASSWORD_ADMIN"] = PASSWORD_ADMIN
+    config["IS_WHITELIST"] = IS_WHITELIST
     await controller.set_config(name="config",
                           binary_data=pickle.dumps(config))
 
 
 async def read_ini():
-    global PASSWORD_ADMIN
+    global PASSWORD_ADMIN, IS_WHITELIST
     config = pickle.loads((await controller.get_config(name="config")).binary_data)
     PASSWORD_ADMIN = str(config["PASSWORD_ADMIN"])
+    try:
+        IS_WHITELIST = str(config["IS_WHITELIST"])
+    except Exception as ex:
+        IS_WHITELIST = False
 
 async def preload_list_posts():
     resp = await controller.get_config(name="list_posts")

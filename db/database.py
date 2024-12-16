@@ -6,6 +6,8 @@ from db.models.BaseModel import BaseModel
 from db.models.UserModel import UserModel
 from db.models.SubscribeModel import SubscribeModel
 from db.models.ConfigModel import ConfigModel
+from db.models.BalanceModel import BalanceModel
+from db.models.UserVModel import UserVModel
 
 engine = create_async_engine("sqlite+aiosqlite:///mainbase.db", echo=False)
 

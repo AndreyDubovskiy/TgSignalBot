@@ -1,6 +1,8 @@
 import requests as req
 import pandas as pd
 from datetime import datetime
+from ta.volatility import AverageTrueRange
+from ta.trend import EMAIndicator
 
 
 class Exchange:
@@ -51,7 +53,7 @@ class Exchange:
         response = req.get(url, headers=headers).json()
         return response["data"]
 
-    def analyze_and_plot(self, symbol: str, interval: str = "1d"):
+    def analyze_and_plot_old(self, symbol: str, interval: str = "1d"):
         data = self.get_klines(symbol, interval)
         for i in data:
             # i[0] = int(i[0])
@@ -107,4 +109,75 @@ class Exchange:
             short_signals = df[df['Signal'] == 'short']
 
             return long_signals, short_signals
+
+    async def analyze_and_plot(self, symbol: str, interval: str = "1d"):
+        data = self.get_klines(symbol, interval)
+        df_data = pd.DataFrame(data, columns=[
+            'open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'quote_asset_volume'
+        ])
+        df_data[['open', 'high', 'low', 'close']] = df_data[['open', 'high', 'low', 'close']].astype(float)
+
+        long_signals, short_signals = self.UT_Bot_Alerts(df_data, key_value=2, atr_period=10, use_heikin_ashi=False)
+
+        return long_signals, short_signals
+
+    def UT_Bot_Alerts(self, data, key_value=1, atr_period=10, use_heikin_ashi=False):
+        """
+        Implements UT Bot Alerts in Python.
+
+        Parameters:
+            data (DataFrame): OHLC data with columns ['open', 'high', 'low', 'close'].
+            key_value (float): Multiplier to adjust sensitivity.
+            atr_period (int): Period for ATR calculation.
+            use_heikin_ashi (bool): Whether to use Heikin Ashi candles for signals.
+
+        Returns:
+            DataFrame: DataFrame with buy/sell signals and trailing stop levels.
+        """
+        df = data.copy()
+
+        # Calculate Heikin Ashi candles if enabled
+        if use_heikin_ashi:
+            df['ha_close'] = (df['open'] + df['high'] + df['low'] + df['close']) / 4
+            src = df['ha_close']
+        else:
+            src = df['close']
+
+        # Calculate ATR
+        atr = AverageTrueRange(high=df['high'], low=df['low'], close=df['close'], window=atr_period)
+        df['atr'] = atr.average_true_range()
+        n_loss = key_value * df['atr']
+
+        # Initialize trailing stop
+        df['xATRTrailingStop'] = 0.0
+        for i in range(1, len(df)):
+            if src[i] > df.loc[i - 1, 'xATRTrailingStop'] and src[i - 1] > df.loc[i - 1, 'xATRTrailingStop']:
+                df.loc[i, 'xATRTrailingStop'] = max(df.loc[i - 1, 'xATRTrailingStop'], src[i] - n_loss[i])
+            elif src[i] < df.loc[i - 1, 'xATRTrailingStop'] and src[i - 1] < df.loc[i - 1, 'xATRTrailingStop']:
+                df.loc[i, 'xATRTrailingStop'] = min(df.loc[i - 1, 'xATRTrailingStop'], src[i] + n_loss[i])
+            else:
+                df.loc[i, 'xATRTrailingStop'] = src[i] - n_loss[i] if src[i] > df.loc[i - 1, 'xATRTrailingStop'] else \
+                src[
+                    i] + \
+                n_loss[
+                    i]
+
+        # Determine positions
+        df['pos'] = 0
+        for i in range(1, len(df)):
+            if src[i - 1] < df.loc[i - 1, 'xATRTrailingStop'] and src[i] > df.loc[i - 1, 'xATRTrailingStop']:
+                df.loc[i, 'pos'] = 1
+            elif src[i - 1] > df.loc[i - 1, 'xATRTrailingStop'] and src[i] < df.loc[i - 1, 'xATRTrailingStop']:
+                df.loc[i, 'pos'] = -1
+            else:
+                df.loc[i, 'pos'] = df.loc[i - 1, 'pos']
+
+        # Generate buy/sell signals
+        df['buy'] = (src > df['xATRTrailingStop']) & (src.shift(1) <= df['xATRTrailingStop'].shift(1))
+        df['sell'] = (src < df['xATRTrailingStop']) & (src.shift(1) >= df['xATRTrailingStop'].shift(1))
+
+        buys = df[df['buy']].copy()
+        sells = df[df['sell']].copy()
+
+        return buys, sells
 
