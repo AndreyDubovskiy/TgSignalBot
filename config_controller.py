@@ -5,6 +5,11 @@ controller = ConfigsController()
 PASSWORD_ADMIN = "admin"
 IS_WHITELIST = False
 
+TOKEN_BOT = os.environ.get('BOT_TOKEN')
+
+
+AFTER_SIGNAL_TEXT = "TestText"
+IS_AFTER_SIGNAL = False
 
 LIST_POSTS = {}
 # {"name":{"text": str,
@@ -26,18 +31,28 @@ async def write_ini():
     config = {}
     config["PASSWORD_ADMIN"] = PASSWORD_ADMIN
     config["IS_WHITELIST"] = IS_WHITELIST
+    config["AFTER_SIGNAL_TEXT"] = AFTER_SIGNAL_TEXT
+    config["IS_AFTER_SIGNAL"] = IS_AFTER_SIGNAL
     await controller.set_config(name="config",
                           binary_data=pickle.dumps(config))
 
 
 async def read_ini():
-    global PASSWORD_ADMIN, IS_WHITELIST
+    global PASSWORD_ADMIN, IS_WHITELIST, AFTER_SIGNAL_TEXT, IS_AFTER_SIGNAL
     config = pickle.loads((await controller.get_config(name="config")).binary_data)
     PASSWORD_ADMIN = str(config["PASSWORD_ADMIN"])
     try:
-        IS_WHITELIST = str(config["IS_WHITELIST"])
+        IS_WHITELIST = bool(config["IS_WHITELIST"])
     except Exception as ex:
         IS_WHITELIST = False
+    try:
+        AFTER_SIGNAL_TEXT = str(config["AFTER_SIGNAL_TEXT"])
+    except Exception as ex:
+        AFTER_SIGNAL_TEXT = "TestText"
+    try:
+        IS_AFTER_SIGNAL = bool(config["IS_AFTER_SIGNAL"])
+    except Exception as ex:
+        IS_AFTER_SIGNAL = False
 
 async def preload_list_posts():
     resp = await controller.get_config(name="list_posts")

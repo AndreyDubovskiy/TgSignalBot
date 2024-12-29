@@ -8,8 +8,7 @@ from states.template.Response import Response
 from utils.SenderSignal import SenderSignal
 import os
 
-
-tokkey = os.environ.get('BOT_TOKEN')
+tokkey = config_controller.TOKEN_BOT
 
 bot = AsyncTeleBot(tokkey)
 
@@ -169,24 +168,35 @@ import utils.AsyncTasks as tasks
 tasks.bot = bot
 
 import asyncio
+from threading import Thread
+
+
 
 
 
 async def sender_time():
-    sender_signal = SenderSignal(bot=bot)
+    sender_signal = SenderSignal()
     while True:
         await sender_signal.tick()
-        await asyncio.sleep(60)
+        if sender_signal.count_time >= 60:
+            pass
+        else:
+            await asyncio.sleep(60-sender_signal.count_time)
+
+def second_thread():
+    asyncio.run(sender_time())
 
 async def start_main():
     task1 = asyncio.create_task(bot.polling(non_stop=True))
     task2 = asyncio.create_task(config_controller.preload_config())
     task4 = asyncio.create_task(config_controller.preload_list_posts())
-    task3 = asyncio.create_task(sender_time())
+    #task3 = asyncio.create_task(sender_time())
     task5 = asyncio.create_task(tasks.one_minute())
+    thread = Thread(target=second_thread, daemon=True)
+    thread.start()
     await task1
     await task2
-    await task3
+    #await task3
     await task4
     await task5
 

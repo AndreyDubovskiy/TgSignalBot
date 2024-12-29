@@ -42,7 +42,7 @@ class PostState(UserState):
             self.edit = "addpost"
             return Response(text="Відправте пост одним повідомленням (можна з фото або відео, та текстом, але одним повідомленням):")
         elif self.edit == "addpost":
-            self.newtext = message
+            self.newtext = self.message_obj.html_text
             self.edit = "addurls"
             return Response(
                 text="Напишіть посилання, які потрібно додати до поста (якщо не одне посилання, то кожне посилання з нового рядка. Але одним повідомленням):", buttons=markups.generate_cancel())
@@ -100,7 +100,7 @@ class PostState(UserState):
                 text+= "\nКількість прикріплених відео: " + str(len(config_controller.LIST_POSTS[self.current_name]['videos'])) + "\n"
             if config_controller.LIST_POSTS[self.current_name]['text'] != None:
                 text+="\nТекст поста:\n" + config_controller.LIST_POSTS[self.current_name]['text']
-            return Response(text="Назва поста: " + self.current_name + text, buttons=markups.generate_post_semimenu())
+            return Response(text="Назва поста: " + self.current_name + text, buttons=markups.generate_post_semimenu(), is_html=True)
         elif data_btn == "/add":
             self.edit = "addname"
             return Response(text="Напишіть назву поста наступним повідомленням (для себе, користувачам не надсилається):", buttons=markups.generate_cancel())
@@ -147,10 +147,10 @@ class PostState(UserState):
                         if list_photos and len(list_photos) == 1 and text_post:
                             if file_id == None:
                                 with open(list_photos[0], 'rb') as photo_file:
-                                    tmp_msg = await self.bot.send_photo(chat_id=chat_id, photo=photo_file, caption=text_post, reply_markup=markup_tpm)
+                                    tmp_msg = await self.bot.send_photo(chat_id=chat_id, photo=photo_file, caption=text_post, reply_markup=markup_tpm, parse_mode="HTML")
                                     file_id = tmp_msg.photo[0].file_id
                             else:
-                                await self.bot.send_photo(chat_id=chat_id, photo=file_id, caption=text_post, reply_markup=markup_tpm)
+                                await self.bot.send_photo(chat_id=chat_id, photo=file_id, caption=text_post, reply_markup=markup_tpm, parse_mode="HTML")
                         elif list_photos and len(list_photos) == 1:
                             if file_id == None:
                                 with open(list_photos[0], 'rb') as photo_file:
@@ -165,7 +165,7 @@ class PostState(UserState):
                                     with open(i, 'rb') as photo_file:
                                         media.append(types.InputMediaPhoto(media=photo_file))
                                 tmp_msg = await self.bot.send_media_group(chat_id=chat_id, media=media)
-                                await self.bot.send_message(chat_id=chat_id, text=text_post, reply_markup=markup_tpm)
+                                await self.bot.send_message(chat_id=chat_id, text=text_post, reply_markup=markup_tpm, parse_mode="HTML", disable_web_page_preview=True)
                                 for i in tmp_msg:
                                     list_file_id.append(i.photo[0].file_id)
                             else:
@@ -176,15 +176,15 @@ class PostState(UserState):
                                                            media=media)
                                 await self.bot.send_message(chat_id=chat_id,
                                                        text=text_post,
-                                                       reply_markup=markup_tpm)
+                                                       reply_markup=markup_tpm, parse_mode="HTML", disable_web_page_preview=True)
 
                         elif list_videos and len(list_videos) == 1 and text_post:
                             if file_id == None:
                                 with open(list_videos[0], 'rb') as video_file:
-                                    tmp_msg = await self.bot.send_video(chat_id=chat_id, video=video_file, caption=text_post, reply_markup=markup_tpm)
+                                    tmp_msg = await self.bot.send_video(chat_id=chat_id, video=video_file, caption=text_post, reply_markup=markup_tpm, parse_mode="HTML")
                                     file_id = tmp_msg.video.file_id
                             else:
-                                await self.bot.send_video(chat_id=chat_id, video=file_id, caption=text_post, reply_markup=markup_tpm)
+                                await self.bot.send_video(chat_id=chat_id, video=file_id, caption=text_post, reply_markup=markup_tpm, parse_mode="HTML")
                         elif list_videos and len(list_videos) == 1:
                             if file_id == None:
                                 with open(list_videos[0], 'rb') as video_file:
@@ -193,7 +193,7 @@ class PostState(UserState):
                             else:
                                 await self.bot.send_video(chat_id=chat_id, video=file_id, reply_markup=markup_tpm)
                         elif text_post:
-                            await self.bot.send_message(chat_id=chat_id, text=text_post, reply_markup=markup_tpm)
+                            await self.bot.send_message(chat_id=chat_id, text=text_post, reply_markup=markup_tpm, parse_mode="HTML", disable_web_page_preview=True)
                         count+=1
                     except Exception as ex:
                         error+=1
@@ -218,7 +218,7 @@ class PostState(UserState):
 
     async def next_msg_photo_and_video(self, message: types.Message):
         if self.edit == "addpost":
-            self.newtext = message.caption
+            self.newtext = self.message_obj.html_caption
             if message.photo:
                 self.newphotos = []
                 i = message.photo[-1]

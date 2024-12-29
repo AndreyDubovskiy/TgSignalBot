@@ -181,3 +181,48 @@ class Exchange:
 
         return buys, sells
 
+
+def get_klines(symbol: str, interval: str = "1m", limit: int = 500):
+    url = "https://api.mexc.com" + "/api/v3/klines"
+    params = {
+        "symbol": symbol,
+        "interval": interval,
+        "limit": limit
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "X-MEXC-APIKEY": "mx0vglJH419oaT9sT1"
+    }
+    response = req.get(url, params=params, headers=headers)
+    return response
+
+# count = 0
+# list_count = {}
+# import random
+# import time
+# symbwols = ["XRPUSDT",
+#             "BTCUSDT",
+#             "ETHUSDT",
+#             "BNBUSDT"]
+# while True:
+#     count += 1
+#     exchange = Exchange()
+#     res = get_klines(symbol=random.choice(symbwols))
+#     code_res = str(res.status_code)
+#     print(code_res, count)
+#     res_json = res.json()
+#     print(res_json)
+#     print("Server_TIME", exchange.get_server_time())
+#     print("Responce_TIME", datetime.fromtimestamp(res_json[-1][6]/1000))
+#     print("My_TIME", datetime.now())
+#     if list_count.get(code_res, None) == None:
+#         list_count[code_res] = 1
+#     else:
+#         list_count[code_res] += 1
+#     if count == 100:
+#         break
+#
+# print("------RESULT------")
+# for i in list_count:
+#     print(i, " = = " ,list_count[i])
+

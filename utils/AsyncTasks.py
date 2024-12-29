@@ -89,13 +89,17 @@ async def send(current_name, user_id):
                             tmp_msg = await bot.send_photo(chat_id=chat_id,
                                                            photo=photo_file,
                                                            caption=text_post,
-                                                           reply_markup=markup_tpm)
+                                                           reply_markup=markup_tpm,
+                                                           parse_mode="HTML",
+                                                           )
                             file_id = tmp_msg.photo[0].file_id
                     else:
                         await bot.send_photo(chat_id=chat_id,
                                              photo=file_id,
                                              caption=text_post,
-                                             reply_markup=markup_tpm)
+                                             reply_markup=markup_tpm,
+                                             parse_mode="HTML",
+                                             )
                 elif list_photos and len(list_photos) == 1:
                     if file_id == None:
                         with open(list_photos[0], 'rb') as photo_file:
@@ -119,7 +123,9 @@ async def send(current_name, user_id):
                             list_file_id.append(i.photo[0].file_id)
                         await bot.send_message(chat_id=chat_id,
                                                text=text_post,
-                                               reply_markup=markup_tpm)
+                                               reply_markup=markup_tpm,
+                                               parse_mode="HTML",
+                                               disable_web_page_preview=True)
                     else:
                         media = []
                         for i in list_file_id:
@@ -128,20 +134,24 @@ async def send(current_name, user_id):
                                                     media=media)
                         await bot.send_message(chat_id=chat_id,
                                                text=text_post,
-                                               reply_markup=markup_tpm)
+                                               reply_markup=markup_tpm,
+                                               parse_mode="HTML",
+                                               disable_web_page_preview=True)
                 elif list_videos and len(list_videos) == 1 and text_post:
                     if file_id == None:
                         with open(list_videos[0], 'rb') as video_file:
                             tmp_msg = await bot.send_video(chat_id=chat_id,
                                                  video=video_file,
                                                  caption=text_post,
-                                                 reply_markup=markup_tpm)
+                                                 reply_markup=markup_tpm,
+                                                 parse_mode="HTML")
                             file_id = tmp_msg.video.file_id
                     else:
                         await bot.send_video(chat_id=chat_id,
                                              video=file_id,
                                              caption=text_post,
-                                             reply_markup=markup_tpm)
+                                             reply_markup=markup_tpm,
+                                             parse_mode="HTML")
                 elif list_videos and len(list_videos) == 1:
                     if file_id == None:
                         with open(list_videos[0], 'rb') as video_file:
@@ -156,7 +166,9 @@ async def send(current_name, user_id):
                 elif text_post:
                     await bot.send_message(chat_id=chat_id,
                                            text=text_post,
-                                           reply_markup=markup_tpm)
+                                           reply_markup=markup_tpm,
+                                           parse_mode="HTML",
+                                           disable_web_page_preview=True)
                 count += 1
             except Exception as ex:
                 error += 1

@@ -18,7 +18,7 @@ class Balancer:
             sell = sells.iloc[-1]
             sell_time = datetime.fromtimestamp(int(sell['close_time'])/1000)
 
-            if sell_time > buy_time:
+            if sell_time < buy_time:
                 signal_price = buy['close']
                 signal_type = 'buy'
                 signal_time = buy_time

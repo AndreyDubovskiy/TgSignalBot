@@ -75,10 +75,15 @@ def generate_semi_menu_subscribe():
 
     return markup
 
-def generate_markup_menu():
+def generate_markup_menu_old():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(types.InlineKeyboardButton(text="💰 МОЇ ПІДПИСКИ 💰", callback_data="/subscribes_list"))
     markup.add(types.InlineKeyboardButton(text="Список постів", callback_data="/postlist"))
+    if config_controller.IS_AFTER_SIGNAL:
+        markup.add(types.InlineKeyboardButton(text="Текст після сигналу: ВКЛ", callback_data="/is_after_signal"))
+        markup.add(types.InlineKeyboardButton(text="Змінити текст після сигналу", callback_data="/after_signal"))
+    else:
+        markup.add(types.InlineKeyboardButton(text="Текст після сигналу: ВИКЛ", callback_data="/is_after_signal"))
     if config_controller.IS_WHITELIST:
         markup.add(types.InlineKeyboardButton(text="Білий список: ВКЛ", callback_data="/whitelist"))
         markup.add(types.InlineKeyboardButton(text="Додати в білий список", callback_data="/add_whitelist"))
@@ -91,10 +96,31 @@ def generate_markup_menu():
 
     return markup
 
-def generate_markup_menu_user():
-    markup = types.InlineKeyboardMarkup(row_width=2)
+def generate_markup_menu():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton(text="💰 МОЇ ПІДПИСКИ 💰"))
+    markup.add(types.KeyboardButton(text="Список постів"))
+    if config_controller.IS_AFTER_SIGNAL:
+        markup.add(types.KeyboardButton(text="Текст після сигналу: ВКЛ"))
+        markup.add(types.KeyboardButton(text="Змінити текст після сигналу"))
+    else:
+        markup.add(types.KeyboardButton(text="Текст після сигналу: ВИКЛ"))
+    if config_controller.IS_WHITELIST:
+        markup.add(types.KeyboardButton(text="Білий список: ВКЛ"))
+        markup.add(types.KeyboardButton(text="Додати в білий список"))
+        markup.add(types.KeyboardButton(text="Видалити з білого списку"))
+    else:
+        markup.add(types.KeyboardButton(text="Білий список: ВИКЛ"))
 
-    markup.add(types.InlineKeyboardButton(text="💰 МОЇ ПІДПИСКИ 💰", callback_data="/subscribes_list"))
+
+    markup.add(types.KeyboardButton(text="Змінити пароль адміна"))
+
+    return markup
+
+def generate_markup_menu_user():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+
+    markup.add(types.KeyboardButton(text="💰 МОЇ ПІДПИСКИ 💰"))
 
     return markup
 
